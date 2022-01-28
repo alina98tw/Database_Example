@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MyDBHandler extends SQLiteOpenHelper {
@@ -20,12 +22,15 @@ public class MyDBHandler extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + COLUMN_ID +
-                "INTEGER PRIMARYKEY," + COLUMN_NAME + "TEXT )";
+        String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + COLUMN_ID +
+                " INTEGER PRIMARY KEY, " + COLUMN_NAME + " TEXT )";
         db.execSQL(CREATE_TABLE);
     }
     @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {}
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME);
+        onCreate(db);
+    }
 
     public String loadHandler() {
         String result = "";
@@ -42,16 +47,22 @@ public class MyDBHandler extends SQLiteOpenHelper {
         db.close();
         return result;
     }
-    public void addHandler(Student student) {
+    public String  addHandler(Student student) {
+        String result;
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, student.getID());
         values.put(COLUMN_NAME, student.getStudentName());
         SQLiteDatabase db = this.getWritableDatabase();
-        db.insert(TABLE_NAME, null, values);
+        long rowInserted = db.insert(TABLE_NAME, null, values);
+        if(rowInserted != -1)
+            result = "Student Added";
+        else
+            result = "Error";
         db.close();
+        return result;
     }
     public Student findHandler(String studentname) {
-        String query = "Select * FROM " + TABLE_NAME + "WHERE" + COLUMN_NAME + " = " + "'" + studentname + "'";
+        String query = "Select * FROM " + TABLE_NAME + " WHERE " + COLUMN_NAME + " = " + "'" + studentname + "'";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Student student = new Student();
@@ -68,7 +79,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
     }
     public boolean deleteHandler(int ID) {
         boolean result = false;
-        String query = "Select*FROM" + TABLE_NAME + "WHERE" + COLUMN_ID + "= '" + ID + "'";
+        String query = "Select * FROM " + TABLE_NAME + " WHERE " + COLUMN_ID + " = '" + ID + "'";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Student student = new Student();

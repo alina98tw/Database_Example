@@ -28,13 +28,15 @@ public class MainActivity extends AppCompatActivity {
 
     // Code for the ADD button
     public void addStudent(View view) {
+        TextView lst = findViewById(R.id.lst);
         EditText studentid = findViewById(R.id.studentid);
         EditText studentname = findViewById(R.id.studentname);
         MyDBHandler dbHandler = new MyDBHandler(this, null, null, 1);
         int id = Integer.parseInt(studentid.getText().toString());
         String name = studentname.getText().toString();
         Student student = new Student(id, name);
-        dbHandler.addHandler(student);
+        String result = dbHandler.addHandler(student);
+        lst.setText(result);
         studentid.setText("");
         studentname.setText("");
     }
